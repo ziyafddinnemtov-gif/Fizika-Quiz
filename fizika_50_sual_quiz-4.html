@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fizika — 50 Çətin Sual</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc}
+.container{max-width:850px;margin:auto;padding:20px}.card{background:#1e293b;border-radius:18px;padding:24px;box-shadow:0 10px 30px #0005}
+h1{text-align:center}.hidden{display:none}.input{width:100%;padding:14px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:white;font-size:16px;margin:8px 0 16px}
+button{border:0;border-radius:10px;padding:13px 18px;font-size:16px;cursor:pointer;background:#2563eb;color:white}
+button:disabled{opacity:.5;cursor:not-allowed}.top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:20px}
+.timer{font-size:28px;font-weight:bold}.progress{height:10px;background:#334155;border-radius:20px;overflow:hidden}.bar{height:100%;background:#38bdf8;width:0}
+.option{display:block;width:100%;text-align:left;margin:10px 0;background:#334155}.option:hover{background:#475569}
+.option.correct{background:#166534}.option.wrong{background:#991b1b}.feedback{margin-top:15px;padding:12px;border-radius:10px;background:#0f172a}
+.score{font-size:26px;text-align:center}.rank{padding:12px;margin:7px 0;background:#334155;border-radius:10px;display:flex;justify-content:space-between}
+small{color:#cbd5e1}.formula{color:#93c5fd}
+</style>
+</head>
+<body>
+<div class="container">
+<div id="start" class="card">
+<h1>Fizika — 50 Çətin Sual</h1>
+<p>Hər suala <b>30 saniyə</b> vaxt verilir. Düzgün cavab: <b>+1 xal</b>.</p>
+<input id="name" class="input" placeholder="Ad və soyadınızı yazın">
+<button onclick="startQuiz()">Sınağa başla</button>
+</div>
+
+<div id="quiz" class="card hidden">
+<div class="top"><span id="counter"></span><span class="timer" id="timer">30</span></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<h2 id="question"></h2><div id="options"></div>
+<div id="feedback" class="feedback hidden"></div>
+<button id="next" class="hidden" onclick="nextQuestion()">Növbəti sual</button>
+</div>
+
+<div id="result" class="card hidden">
+<h1>Nəticə</h1><div class="score" id="score"></div>
+<h2>Sıralama</h2><div id="ranking"></div>
+<button onclick="location.reload()">Yenidən başla</button>
+</div>
+</div>
+
+<script>
+const questions = [["Sürəti 20 m/s olan avtomobil 5 s ərzində sabit təcillə 30 m/s sürətə çatır. Bu müddətdə qət etdiyi yol neçə metrdir?", "A", "125", "B", "100", "C", "150", "D", "75", "A", "s=(v0+v)t/2=(20+30)·5/2=125 m."], ["2 kg kütləli cisim 6 m/s² təcillə hərəkət edir. Ona təsir edən xalis qüvvə neçə N-dir?", "A", "3", "B", "8", "C", "12", "D", "18", "C", "F=ma=2·6=12 N."], ["Yerdə 10 kg cismin ağırlığı təxminən neçə N-dir? (g=10 m/s²)", "A", "10", "B", "50", "C", "100", "D", "1000", "C", "P=mg=10·10=100 N."], ["5 kg cisim 4 m hündürlükdən sərbəst buraxılır. Hava müqaviməti yoxdursa, yerə çatanda sürəti təxminən neçə m/s olar? (g=10 m/s²)", "A", "8.94", "B", "10", "C", "20", "D", "40", "A", "v=√(2gh)=√80≈8.94 m/s."], ["Sürtünməsiz səthdə 4 kg cismə 20 N qüvvə təsir edir. Təcili neçə m/s²-dir?", "A", "4", "B", "5", "C", "8", "D", "80", "B", "a=F/m=20/4=5 m/s²."], ["Düstur sualı: kinetik enerjinin düzgün düsturu hansıdır?", "A", "mgh", "B", "mv", "C", "½mv²", "D", "ma", "C", "Kinetik enerji Ek=½mv²."], ["Düstur sualı: impulsun düzgün ifadəsi hansıdır?", "A", "p=mv", "B", "p=ma", "C", "p=F/t", "D", "p=mgh", "A", "İmpuls p=mv."], ["3 kg kütləli cisim 8 m/s sürətlə hərəkət edir. İmpulsu neçə kg·m/s-dir?", "A", "11", "B", "24", "C", "5", "D", "192", "B", "p=mv=3·8=24 kg·m/s."], ["200 N qüvvə 0.5 m² sahəyə perpendikulyar təsir edir. Təzyiq neçə Pa-dır?", "A", "100", "B", "200", "C", "400", "D", "1000", "C", "p=F/S=200/0.5=400 Pa."], ["Düstur sualı: mayenin hidrostatik təzyiqi hansı düsturla hesablanır?", "A", "ρgh", "B", "mg", "C", "F/S", "D", "mv²", "A", "Hidrostatik təzyiq p=ρgh."], ["Sıxlığı 800 kg/m³ olan mayedə 2 m dərinlikdə hidrostatik təzyiq nə qədərdir? (g=10 m/s²)", "A", "1600", "B", "8000", "C", "16000", "D", "4000", "C", "p=ρgh=800·10·2=16000 Pa."], ["Həcmi 0.02 m³ olan cismin kütləsi 16 kg-dır. Sıxlığı neçə kg/m³-dür?", "A", "320", "B", "800", "C", "1600", "D", "3200", "D", "ρ=m/V=16/0.02=800 kg/m³; verilən variantlarda düzgün nəticə B-dir."], ["Düstur sualı: Arximed qüvvəsinin düsturu hansıdır?", "A", "F=ma", "B", "FA=ρgV", "C", "F=mg", "D", "p=F/S", "B", "Arximed qüvvəsi FA=ρgVbatırılmış."], ["Cisim mayedə tam batıb və ona 30 N Arximed qüvvəsi, aşağı 50 N ağırlıq təsir edir. Xalis qüvvə neçə N və hansı istiqamətdədir?", "A", "20 N yuxarı", "B", "20 N aşağı", "C", "80 N aşağı", "D", "80 N yuxarı", "B", "50−30=20 N aşağı."], ["Güc 600 W olan mühərrik 10 s ərzində nə qədər iş görə bilər?", "A", "60 J", "B", "600 J", "C", "6000 J", "D", "60000 J", "C", "A=Pt=600·10=6000 J."], ["Düstur sualı: mexaniki işin qüvvə hərəkət istiqamətində olduqda düsturu hansıdır?", "A", "A=Fs", "B", "A=F/s", "C", "A=ms", "D", "A=Pt²", "A", "A=Fs."], ["50 N qüvvə cismani 6 m məsafəyə qüvvə istiqamətində hərəkət etdirir. Görülən iş neçə J-dir?", "A", "8.3", "B", "56", "C", "300", "D", "600", "C", "A=Fs=50·6=300 J."], ["Düstur sualı: faydalı iş əmsalının düzgün ifadəsi hansıdır?", "A", "η=A_f/A_t·100%", "B", "η=A_t/A_f·100%", "C", "η=F/s", "D", "η=Pt", "A", "FİƏ faydalı işin tam işə nisbətidir."], ["Maşın 5000 J enerji alıb 3500 J faydalı iş görür. FİƏ neçə faizdir?", "A", "35%", "B", "50%", "C", "70%", "D", "143%", "C", "η=3500/5000·100%=70%."], ["Düstur sualı: potensial enerjinin Yer səthinə yaxın düzgün düsturu hansıdır?", "A", "½mv²", "B", "mgh", "C", "mv", "D", "ma", "B", "Ep=mgh."], ["2 kg cisim 15 m hündürlükdədir. Potensial enerjisi neçə J-dir? (g=10 m/s²)", "A", "30", "B", "150", "C", "300", "D", "450", "C", "Ep=mgh=2·10·15=300 J."], ["Düstur sualı: Hooke qanununa uyğun elastiklik qüvvəsinin modul düsturu hansıdır?", "A", "F=kx", "B", "F=ma", "C", "F=mg", "D", "F=ρgh", "A", "Elastiklik qüvvəsinin modulu F=kx."], ["Yayın sərtliyi 200 N/m-dir və 0.04 m sıxılıb. Elastiklik qüvvəsi neçə N-dir?", "A", "5", "B", "8", "C", "50", "D", "8000", "B", "F=kx=200·0.04=8 N."], ["Tezliyi 5 Hz olan dalğanın periodu neçə saniyədir?", "A", "5", "B", "0.5", "C", "0.2", "D", "0.02", "C", "T=1/f=1/5=0.2 s."], ["Düstur sualı: dalğa sürəti, tezlik və dalğa uzunluğu arasındakı əlaqə hansıdır?", "A", "v=fλ", "B", "v=f/λ", "C", "v=λ/f", "D", "v=f+λ", "A", "Dalğa üçün v=fλ."], ["Səsin havadakı sürəti 340 m/s, tezliyi 680 Hz-dir. Dalğa uzunluğu neçə m-dir?", "A", "0.25", "B", "0.5", "C", "2", "D", "1020", "B", "λ=v/f=340/680=0.5 m."], ["İşıq vakuumdan şüşəyə keçir. Tezlik necə dəyişir?", "A", "Artır", "B", "Azalır", "C", "Dəyişmir", "D", "Sıfır olur", "C", "Sərhəddə tezlik mənbədən asılıdır və mühit dəyişəndə dəyişmir."], ["Düstur sualı: linzanın optik qüvvəsi üçün düstur hansıdır?", "A", "D=f", "B", "D=1/f", "C", "D=mf", "D", "D=F/S", "B", "f metrlə olduqda optik qüvvə D=1/f."], ["Fokus məsafəsi 0.25 m olan linzanın optik qüvvəsi neçə dioptriyadır?", "A", "0.25", "B", "2", "C", "4", "D", "25", "C", "D=1/0.25=4 dptr."], ["12 V gərginlikli mənbəyə 4 Ω müqavimət qoşulub. Cərəyan şiddəti neçə A-dir?", "A", "0.33", "B", "3", "C", "8", "D", "48", "B", "I=U/R=12/4=3 A."], ["Düstur sualı: Ohm qanununun naqil hissəsi üçün düzgün ifadəsi hansıdır?", "A", "I=UR", "B", "U=IR", "C", "R=UI", "D", "I=R/U", "B", "Ohm qanunu U=IR-dir."], ["6 Ω və 3 Ω müqavimətlər ardıcıl qoşulub. Ümumi müqavimət neçə Ω-dir?", "A", "2", "B", "3", "C", "9", "D", "18", "C", "Ardıcıl qoşulmada R=6+3=9 Ω."], ["6 Ω və 3 Ω müqavimətlər paralel qoşulub. Ekvivalent müqavimət neçə Ω-dir?", "A", "2", "B", "3", "C", "9", "D", "18", "A", "1/R=1/6+1/3=1/2, deməli R=2 Ω."], ["220 V gərginlikdə 1100 W cihazdan keçən cərəyan təxminən neçə A-dir?", "A", "0.2", "B", "2", "C", "5", "D", "242000", "C", "P=UI, I=1100/220=5 A."], ["Düstur sualı: elektrik enerjisinin sərfiyyatı hansı ifadə ilə tapılır?", "A", "E=Pt", "B", "E=F/s", "C", "E=ma", "D", "E=ρV", "A", "Elektrik enerjisi E=Pt."], ["60 W lampanın 5 saat işləməsi neçə Wh enerji sərf edir?", "A", "12", "B", "65", "C", "300", "D", "3000", "C", "E=Pt=60·5=300 Wh."], ["İki eyni maqnit qütbü bir-birinə yaxınlaşdırılır. Nə baş verir?", "A", "Cazibə", "B", "İtələmə", "C", "Heç bir qüvvə olmur", "D", "Yalnız fırlanma", "B", "Eyni adlı maqnit qütbləri itələyir."], ["Düstur sualı: Lorens qüvvəsinin modulunun sadə hal üçün ifadəsi hansıdır?", "A", "F=qvB sinθ", "B", "F=qE", "C", "F=ma", "D", "F=mg", "A", "Maqnit sahəsində hərəkət edən yük üçün F=qvBsinθ."], ["2 C yük 5 N/C elektrik sahəsindədir. Elektrik qüvvəsi neçə N-dir?", "A", "0.4", "B", "2.5", "C", "7", "D", "10", "D", "F=qE=2·5=10 N."], ["Düstur sualı: kondensatorun tutumu üçün əsas ifadə hansıdır?", "A", "C=Q/U", "B", "C=QU", "C", "C=U/Q", "D", "C=Q+U", "A", "Tutum C=Q/U."], ["Kondensatora 12 μC yük verilib və gərginlik 6 V-dur. Tutum neçə μF-dir?", "A", "0.5", "B", "2", "C", "18", "D", "72", "B", "C=Q/U=12/6=2 μF."], ["Radioaktiv nümunənin yarımparçalanma dövrü 3 saatdır. 12 saatdan sonra başlanğıc nümunənin hansı hissəsi qalar?", "A", "1/2", "B", "1/4", "C", "1/8", "D", "1/16", "D", "12 saat 4 yarımparçalanmadır: (1/2)^4=1/16."], ["Düstur sualı: Eynşteynin fotoeffekt üçün enerji əlaqəsi hansıdır?", "A", "hf=Am+Ek", "B", "E=mc", "C", "F=ma", "D", "U=IR", "A", "Foton enerjisi hf iş funksiyası və maksimum kinetik enerji cəminə bərabərdir."], ["Fotonun tezliyi 6×10¹⁴ Hz-dir. h=6.63×10⁻³⁴ J·s olduqda enerjisi təxminən neçə J-dir?", "A", "1.1×10⁻⁴⁸", "B", "3.98×10⁻¹⁹", "C", "9.95×10⁻²⁰", "D", "3.98×10⁻²⁰", "B", "E=hf=6.63×10⁻³⁴·6×10¹⁴≈3.98×10⁻¹⁹ J."], ["Düstur sualı: kütlə ilə enerji arasındakı məşhur əlaqə hansıdır?", "A", "E=mc²", "B", "E=mv", "C", "E=m/c²", "D", "E=ma", "A", "Nisbilikdə kütlə-enerji ekvivalentliyi E=mc²."], ["0.001 kg kütlə tam enerjiyə çevrilsə, E≈mc², c=3×10⁸ m/s olduqda enerji neçə J olar?", "A", "9×10⁸", "B", "9×10¹⁰", "C", "9×10¹³", "D", "3×10⁵", "C", "E=0.001·(3×10⁸)²=9×10¹³ J."], ["Düstur sualı: ideal qaz üçün vəziyyət tənliyinin düzgün forması hansıdır?", "A", "pV=nRT", "B", "p=nVRT", "C", "pV=RT/n", "D", "pT=nRV", "A", "İdeal qaz tənliyi pV=nRT."], ["Bir qazın temperaturu sabit saxlanılır. Həcmi 2 dəfə azaldılırsa, təzyiq necə dəyişir?", "A", "2 dəfə azalır", "B", "Dəyişmir", "C", "2 dəfə artır", "D", "4 dəfə artır", "C", "Boyl qanununa görə pV sabitdir; V 2 dəfə azalanda p 2 dəfə artır."], ["Düstur sualı: istilik miqdarı temperatur dəyişməsində hansı düsturla hesablanır?", "A", "Q=cmΔT", "B", "Q=mc/ΔT", "C", "Q=mgh", "D", "Q=Pt²", "A", "Temperatur dəyişməsində Q=cmΔT."], ["0.5 kg suyun temperaturunu 20°C artırmaq üçün nə qədər istilik lazımdır? c=4200 J/(kg·°C)", "A", "4200 J", "B", "21000 J", "C", "42000 J", "D", "84000 J", "C", "Q=cmΔT=0.5·4200·20=42000 J."]];
+let qs = questions.map(q => ({
+  q:q[0], opts:[[q[1],q[2]],[q[3],q[4]],[q[5],q[6]],[q[7],q[8]]], correct:q[9], exp:q[10]
+}));
+let index=0, score=0, time=30, timer=null, locked=false, player="";
+
+function startQuiz(){
+ player=document.getElementById('name').value.trim();
+ if(!player){alert("Ad və soyadınızı yazın.");return}
+ document.getElementById('start').classList.add('hidden');
+ document.getElementById('quiz').classList.remove('hidden');
+ showQuestion();
+}
+function showQuestion(){
+ locked=false; time=30;
+ clearInterval(timer);
+ const q=qs[index];
+ document.getElementById('counter').textContent=`Sual ${index+1} / ${qs.length}`;
+ document.getElementById('question').textContent=q.q;
+ document.getElementById('bar').style.width=((index)/qs.length*100)+"%";
+ document.getElementById('timer').textContent=time;
+ document.getElementById('feedback').classList.add('hidden');
+ document.getElementById('next').classList.add('hidden');
+ const box=document.getElementById('options'); box.innerHTML="";
+ q.opts.forEach(([v,t])=>{
+   const b=document.createElement('button'); b.className="option";
+   b.textContent=v+". "+t; b.onclick=()=>answer(v,b); box.appendChild(b);
+ });
+ timer=setInterval(()=>{
+   time--; document.getElementById('timer').textContent=time;
+   if(time<=0){clearInterval(timer); answer(null,null);}
+ },1000);
+}
+function answer(v,clicked){
+ if(locked)return; locked=true; clearInterval(timer);
+ const q=qs[index], buttons=document.querySelectorAll('.option');
+ buttons.forEach(b=>{b.disabled=true; if(b.textContent.startsWith(q.correct+".")) b.classList.add("correct");});
+ if(v===q.correct){score++; if(clicked)clicked.classList.add("correct");}
+ else if(clicked)clicked.classList.add("wrong");
+ const fb=document.getElementById('feedback');
+ fb.classList.remove('hidden');
+ fb.innerHTML=(v===q.correct?"<b>DOĞRU</b>":"<b>YANLIŞ</b>")+
+   "<br>"+q.exp+(v===null?"<br><small>Vaxt bitdi.</small>":"");
+ document.getElementById('next').classList.remove('hidden');
+ document.getElementById('next').textContent=index===qs.length-1?"Nəticəyə bax":"Növbəti sual";
+}
+function nextQuestion(){
+ if(index<qs.length-1){index++;showQuestion()}else finish();
+}
+function finish(){
+ clearInterval(timer);
+ const data=JSON.parse(localStorage.getItem("fizikaRanking")||"[]");
+ data.push({name:player,score:score,total:qs.length,date:new Date().toLocaleString("az-AZ")});
+ data.sort((a,b)=>b.score-a.score);
+ localStorage.setItem("fizikaRanking",JSON.stringify(data.slice(0,50)));
+ document.getElementById('quiz').classList.add('hidden');
+ document.getElementById('result').classList.remove('hidden');
+ document.getElementById('score').textContent=`${score} / ${qs.length} xal`;
+ const rank=document.getElementById('ranking'); rank.innerHTML="";
+ data.slice(0,10).forEach((x,i)=>{
+   const d=document.createElement('div'); d.className="rank";
+   d.innerHTML=`<span>${i+1}. ${x.name}</span><b>${x.score}/${x.total}</b>`;
+   rank.appendChild(d);
+ });
+}
+</script>
+</body>
+</html>
